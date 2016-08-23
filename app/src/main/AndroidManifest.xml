@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.myexamples.savingdata">
 
+    <permission android:name="com.myexamples.permission.read" android:protectionLevel="normal"></permission>
+    <permission android:name="com.myexamples.permission.write" android:protectionLevel="normal"></permission>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,6 +18,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.myexamples.provider.text"
+            android:name=".contentprovider.TextProvider"
+            android:exported="true"
+            android:readPermission="com.bootcamp.endava.permission.read"
+            android:writePermission="com.bootcamp.endava.permission.write"/>
     </application>
 
 </manifest>

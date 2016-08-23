@@ -2,7 +2,7 @@ package com.myexamples.savingdata;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,24 +12,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.myexamples.savingdata.database.TextContract;
-import com.myexamples.savingdata.database.TextDBHelper;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final int QUERY_ALL_VALUE = -1;
-    SQLiteDatabase mDatabase;
-    TextDBHelper mDBHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDBHelper = new TextDBHelper(this);
-        mDatabase = mDBHelper.getWritableDatabase();
         TextView textView = (TextView) findViewById(R.id.textView3);
         textView.setMovementMethod(new ScrollingMovementMethod());
-        new QueryTextTask(QUERY_ALL_VALUE).execute();
+        new QueryTextTask(TextContract.Text.CONTENT_URI).execute();
     }
 
     public void onClick(View view){
@@ -41,27 +34,25 @@ public class MainActivity extends AppCompatActivity {
     public void insertText(String text) {
         ContentValues cv = new ContentValues();
         cv.put(TextContract.Text.TEXT, text);
-        mDatabase.insert(TextContract.Text.TABLE_NAME, null, cv);
-        new QueryTextTask(QUERY_ALL_VALUE).execute();
+        getContentResolver().insert(TextContract.Text.CONTENT_URI, cv);
+        new QueryTextTask(TextContract.Text.CONTENT_URI).execute();
     }
 
     private class QueryTextTask extends AsyncTask<Void, Void, Cursor> {
 
-        int mId;
+        Uri mUri;
 
-        public QueryTextTask(int id) {
-            mId = id;
+        public QueryTextTask(Uri uri) {
+            mUri = uri;
         }
 
         @Override
         protected Cursor doInBackground(Void... voids) {
-            return mDatabase.query(TextContract.Text.TABLE_NAME, null, null, null, null, null,
-                    null);
+            return getContentResolver().query(mUri, null, null, null, null);
         }
 
         @Override
         protected void onPostExecute(Cursor c) {
-            if(mId == QUERY_ALL_VALUE) {
                 if (c.getCount() < 1)
                     return;
 
@@ -74,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 c.close();
                 TextView textView = (TextView) findViewById(R.id.textView3);
                 textView.setText(textToDisplay);
-            }
         }
     }
 }
